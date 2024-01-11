@@ -1,4 +1,6 @@
-import 'package:appwithfirebase/screen/sign/signup_screen.dart';
+import 'package:appwithfirebase/screen/homescreen/homescreen.dart';
+import 'package:appwithfirebase/screen/sign/login_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:appwithfirebase/firebase_options.dart';
@@ -16,7 +18,9 @@ class Myapp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: SignUpScreen(),
+      home: FirebaseAuth.instance.currentUser == null
+          ? LoginScreen()
+          : Homescreen(),
     );
   }
 }

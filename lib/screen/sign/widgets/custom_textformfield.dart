@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 class Customformfield extends StatelessWidget {
+  final String? Function(String?)? validator;
   final TextEditingController mycontroller;
   final String hinttext;
   final Widget suffixicon;
@@ -10,16 +11,12 @@ class Customformfield extends StatelessWidget {
       required this.prefixicon,
       required this.mycontroller,
       required this.hinttext,
-      required this.suffixicon});
+      required this.suffixicon,
+      required this.validator});
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      validator: (value) {
-        if (value == "") {
-          return "can't to be empty";
-        }
-        return null;
-      },
+      validator: validator,
       controller: mycontroller,
       decoration: InputDecoration(
         border: const OutlineInputBorder(

@@ -17,7 +17,7 @@ class Customformfield extends StatelessWidget {
       required this.suffixicon,
       required this.validator,
       this.suffixIcon,
-      this.obscureText = true});
+      this.obscureText = false});
   @override
   Widget build(BuildContext context) {
     return TextFormField(

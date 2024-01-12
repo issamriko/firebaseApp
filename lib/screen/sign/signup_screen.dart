@@ -101,7 +101,8 @@ class _SignUpState extends State<SignUpScreen> {
                       email: email.text,
                       password: password.text,
                     );
-                    FirebaseAuth.instance.currentUser!.sendEmailVerification();
+                    await FirebaseAuth.instance.currentUser!
+                        .sendEmailVerification();
                     Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(

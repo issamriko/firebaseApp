@@ -6,6 +6,7 @@ import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -19,6 +20,32 @@ class _LoginScreenState extends State<LoginScreen> {
   TextEditingController password = TextEditingController();
   GlobalKey<FormState> formstate = GlobalKey<FormState>();
   bool visible = true;
+  //sign in with google
+  Future signInWithGoogle() async {
+    // Trigger the authentication flow
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+    if (googleUser == null) {
+      return;
+    }
+    // Obtain the auth details from the request
+    final GoogleSignInAuthentication? googleAuth =
+        await googleUser.authentication;
+
+    // Create a new credential
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth?.accessToken,
+      idToken: googleAuth?.idToken,
+    );
+
+    // Once signed in, return the UserCredential
+    await FirebaseAuth.instance.signInWithCredential(credential);
+    Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (context) => Homescreen(),
+        ),
+        (route) => false);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +121,28 @@ class _LoginScreenState extends State<LoginScreen> {
             Container(
                 alignment: Alignment.topRight,
                 child: TextButton(
-                  onPressed: () {},
+                  onPressed: () async {
+                    if (email.text == "") {
+                      return AwesomeDialog(
+                              context: context,
+                              title: "errer",
+                              dialogType: DialogType.error,
+                              animType: AnimType.rightSlide,
+                              desc: 'please enter your email address ')
+                          .show();
+                    } else {
+                      await FirebaseAuth.instance
+                          .sendPasswordResetEmail(email: email.text);
+                      AwesomeDialog(
+                              context: context,
+                              title: "errer",
+                              dialogType: DialogType.error,
+                              animType: AnimType.rightSlide,
+                              desc:
+                                  'go to your email address to reset your password')
+                          .show();
+                    }
+                  },
                   child: Text(
                     "Forget Password?",
                     style: TextStyle(
@@ -186,7 +234,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       size: 33,
                     )),
                 IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      signInWithGoogle();
+                    },
                     icon: Icon(
                       FontAwesomeIcons.google,
                       color: Colors.orange,

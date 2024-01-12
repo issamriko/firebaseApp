@@ -1,7 +1,7 @@
-import 'package:appwithfirebase/screen/homescreen/homescreen.dart';
 import 'package:appwithfirebase/screen/sign/login_screen.dart';
 import 'package:appwithfirebase/screen/sign/widgets/custom_logo.dart';
 import 'package:appwithfirebase/screen/sign/widgets/custom_textformfield.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -54,7 +54,7 @@ class _SignUpState extends State<SignUpScreen> {
                     mycontroller: name,
                     hinttext: 'Enter Your Name',
                     suffixicon: Icon(null),
-                    prefixicon: Icon(Icons.email_outlined),
+                    prefixicon: Icon(Icons.account_circle),
                     validator: (value) {
                       if (value == "") {
                         return "can't to be empty";
@@ -67,7 +67,7 @@ class _SignUpState extends State<SignUpScreen> {
                     mycontroller: email,
                     hinttext: 'Enter Your Email',
                     suffixicon: Icon(null),
-                    prefixicon: Icon(Icons.email_outlined),
+                    prefixicon: Icon(Icons.email),
                     validator: (value) {
                       if (value == "") {
                         return "can't to be empty";
@@ -79,7 +79,7 @@ class _SignUpState extends State<SignUpScreen> {
                   Customformfield(
                     mycontroller: password,
                     hinttext: 'Enter your password',
-                    suffixicon: Icon(Icons.visibility),
+                    suffixicon: Icon(null),
                     prefixicon: Icon(Icons.lock),
                     validator: (value) {
                       if (value == "") {
@@ -91,39 +91,41 @@ class _SignUpState extends State<SignUpScreen> {
                 ],
               ),
             ),
-            Container(
-                alignment: Alignment.topRight,
-                child: TextButton(
-                  onPressed: () {},
-                  child: Text(
-                    "Forget Password?",
-                    style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        color: Colors.purple),
-                  ),
-                )),
+            SizedBox(height: 40),
             MaterialButton(
               onPressed: () async {
                 if (formstate.currentState!.validate()) {
-                  // ida textformfield vide
+                  // ida textformfield machi vide
                   try {
-                    await FirebaseAuth.instance
-                        .createUserWithEmailAndPassword(
+                    await FirebaseAuth.instance.createUserWithEmailAndPassword(
                       email: email.text,
                       password: password.text,
                     );
+                    FirebaseAuth.instance.currentUser!.sendEmailVerification();
                     Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => Homescreen(),
+                          builder: (context) => LoginScreen(),
                         ),
                         (route) => false);
                   } on FirebaseAuthException catch (e) {
                     if (e.code == 'weak-password') {
-                      print('The password provided is too weak.');
+                      AwesomeDialog(
+                              context: context,
+                              title: "errer",
+                              dialogType: DialogType.error,
+                              animType: AnimType.rightSlide,
+                              desc: 'The password provided is too weak.')
+                          .show();
                     } else if (e.code == 'email-already-in-use') {
-                      print('The account already exists for that email.');
+                      AwesomeDialog(
+                              context: context,
+                              title: "errer",
+                              dialogType: DialogType.error,
+                              animType: AnimType.rightSlide,
+                              desc:
+                                  'The account already exists for that email.')
+                          .show();
                     }
                   } catch (e) {
                     print(e);
@@ -146,16 +148,17 @@ class _SignUpState extends State<SignUpScreen> {
               children: [
                 Text("have an account ? "),
                 TextButton(
-                    onPressed: () {
-                      Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => LoginScreen(),
-                          ),
-                          (route) => false);
-                    },
-                    child: Text("login now",
-                        style: TextStyle(color: Colors.purple))),
+                  onPressed: () {
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => LoginScreen(),
+                        ),
+                        (route) => false);
+                  },
+                  child: Text("login now",
+                      style: TextStyle(color: Colors.purple, fontSize: 16)),
+                ),
               ],
             )
           ],

@@ -18,6 +18,7 @@ class _LoginScreenState extends State<LoginScreen> {
   TextEditingController email = TextEditingController();
   TextEditingController password = TextEditingController();
   GlobalKey<FormState> formstate = GlobalKey<FormState>();
+  bool visible = true;
 
   @override
   Widget build(BuildContext context) {
@@ -35,14 +36,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 Text(
                   "Welcome Back",
                   style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 25,
                       color: Colors.purple,
                       fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 6),
                 Text(
                   "Login to continue",
-                  style: TextStyle(fontSize: 14, color: Colors.purple),
+                  style: TextStyle(fontSize: 17, color: Colors.purple),
                 ),
               ],
             ),
@@ -67,7 +68,18 @@ class _LoginScreenState extends State<LoginScreen> {
                   Customformfield(
                     mycontroller: password,
                     hinttext: 'Enter your password',
-                    suffixicon: Icon(Icons.visibility),
+                    obscureText: visible,
+                    suffixicon: InkWell(
+                      child: visible
+                          ? Icon(Icons.visibility)
+                          : Icon(Icons.visibility_off),
+                      onTap: () {
+                        setState(() {
+                          visible = !visible;
+                        });
+                      },
+                      borderRadius: BorderRadius.circular(40),
+                    ),
                     prefixicon: Icon(Icons.lock),
                     validator: (value) {
                       if (value == "") {
@@ -95,8 +107,26 @@ class _LoginScreenState extends State<LoginScreen> {
               onPressed: () async {
                 if (formstate.currentState!.validate()) {
                   try {
-                    await FirebaseAuth.instance.signInWithEmailAndPassword(
-                        email: email.text, password: password.text);
+                    //credential hya user li dkhl email w password
+                    final credential = await FirebaseAuth.instance
+                        .signInWithEmailAndPassword(
+                            email: email.text, password: password.text);
+                    if (credential.user!.emailVerified) {
+                      Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => Homescreen(),
+                          ),
+                          (route) => false);
+                    } else {
+                      AwesomeDialog(
+                        context: context,
+                        title: "errer",
+                        dialogType: DialogType.error,
+                        animType: AnimType.rightSlide,
+                        desc: "Please Verified Your Email",
+                      ).show();
+                    }
                   } on FirebaseAuthException catch (e) {
                     if (e.code == 'user-not-found') {
                       AwesomeDialog(
@@ -105,22 +135,17 @@ class _LoginScreenState extends State<LoginScreen> {
                         dialogType: DialogType.error,
                         animType: AnimType.rightSlide,
                         desc: "Not User found for that email",
-                      );
+                      ).show();
                     } else if (e.code == 'wrong-password') {
                       AwesomeDialog(
-                          context: context,
-                          title: "errer",
-                          dialogType: DialogType.error,
-                          animType: AnimType.rightSlide,
-                          desc: 'Wrong password provided for that user.');
+                              context: context,
+                              title: "errer",
+                              dialogType: DialogType.error,
+                              animType: AnimType.rightSlide,
+                              desc: 'Wrong password provided for that user.')
+                          .show();
                     }
                   }
-                  Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => Homescreen(),
-                      ),
-                      (route) => false);
                 }
               },
               child: Text(

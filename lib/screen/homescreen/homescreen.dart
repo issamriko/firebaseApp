@@ -1,11 +1,32 @@
 import 'package:appwithfirebase/screen/add_screen.dart';
 import 'package:appwithfirebase/screen/sign/login_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
 import 'package:google_sign_in/google_sign_in.dart';
 
-class Homescreen extends StatelessWidget {
+class Homescreen extends StatefulWidget {
+  @override
+  State<Homescreen> createState() => _HomescreenState();
+}
+
+class _HomescreenState extends State<Homescreen> {
+  List<QueryDocumentSnapshot> notes = [];
+  getdata() async {
+    QuerySnapshot querysnapshot =
+        await FirebaseFirestore.instance.collection('notes').get();
+
+    setState(() {
+      notes.addAll(querysnapshot.docs);
+    });
+  }
+
+  @override
+  void initState() {
+    getdata();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,25 +62,26 @@ class Homescreen extends StatelessWidget {
               icon: Icon(Icons.exit_to_app_rounded)),
         ],
       ),
-      body: GridView(
+      body: GridView.builder(
+        itemCount: notes.length,
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           mainAxisExtent: 150,
         ),
-        children: [
-          Padding(
+        itemBuilder: (context, index) {
+          return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
             child: Card(
-              color: Colors.grey,
+              color: Colors.grey[400],
+              child: ListTile(
+                title: Text(
+                  "${notes[index]['note']}",
+                  style: TextStyle(color: Colors.black),
+                ),
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-            child: Card(
-              color: Colors.grey,
-            ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }

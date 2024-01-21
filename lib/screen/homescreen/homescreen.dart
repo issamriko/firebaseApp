@@ -1,5 +1,6 @@
 import 'package:appwithfirebase/screen/add_screen.dart';
 import 'package:appwithfirebase/screen/sign/login_screen.dart';
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -73,15 +74,39 @@ class _HomescreenState extends State<Homescreen> {
                 mainAxisExtent: 150,
               ),
               itemBuilder: (context, index) {
-                return Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                  child: Card(
-                    color: Colors.grey[400],
-                    child: ListTile(
-                      title: Text(
-                        "${notes[index]['note']}",
-                        style: TextStyle(color: Colors.black),
+                return InkWell(
+                  onTap: () {
+                    AwesomeDialog(
+                            context: context,
+                            title: "warning",
+                            dialogType: DialogType.warning,
+                            animType: AnimType.rightSlide,
+                            btnCancelOnPress: () {},
+                            btnOkOnPress: () async {
+                              await FirebaseFirestore.instance
+                                  .collection('notes')
+                                  .doc(notes[index].id)
+                                  .delete();
+                              Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => Homescreen(),
+                                  ),
+                                  (route) => false);
+                            },
+                            desc: 'are you sure you want to delete this ?')
+                        .show();
+                  },
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                    child: Card(
+                      color: Colors.grey[400],
+                      child: ListTile(
+                        title: Text(
+                          "${notes[index]['note']}",
+                          style: TextStyle(color: Colors.black),
+                        ),
                       ),
                     ),
                   ),

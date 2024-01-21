@@ -11,14 +11,16 @@ class Homescreen extends StatefulWidget {
 }
 
 class _HomescreenState extends State<Homescreen> {
+  bool isloading = true;
   List<QueryDocumentSnapshot> notes = [];
   getdata() async {
-    QuerySnapshot querysnapshot =
-        await FirebaseFirestore.instance.collection('notes').get();
-
-    setState(() {
-      notes.addAll(querysnapshot.docs);
-    });
+    QuerySnapshot querysnapshot = await FirebaseFirestore.instance
+        .collection('notes')
+        .where("id", isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+        .get();
+    notes.addAll(querysnapshot.docs);
+    isloading = false;
+    setState(() {});
   }
 
   @override
@@ -62,27 +64,30 @@ class _HomescreenState extends State<Homescreen> {
               icon: Icon(Icons.exit_to_app_rounded)),
         ],
       ),
-      body: GridView.builder(
-        itemCount: notes.length,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          mainAxisExtent: 150,
-        ),
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-            child: Card(
-              color: Colors.grey[400],
-              child: ListTile(
-                title: Text(
-                  "${notes[index]['note']}",
-                  style: TextStyle(color: Colors.black),
-                ),
+      body: isloading
+          ? Center(child: CircularProgressIndicator())
+          : GridView.builder(
+              itemCount: notes.length,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisExtent: 150,
               ),
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                  child: Card(
+                    color: Colors.grey[400],
+                    child: ListTile(
+                      title: Text(
+                        "${notes[index]['note']}",
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
-          );
-        },
-      ),
     );
   }
 }

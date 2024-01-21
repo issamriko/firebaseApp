@@ -16,6 +16,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  bool isloading = false;
   TextEditingController email = TextEditingController();
   TextEditingController password = TextEditingController();
   GlobalKey<FormState> formstate = GlobalKey<FormState>();
@@ -154,11 +155,15 @@ class _LoginScreenState extends State<LoginScreen> {
             MaterialButton(
               onPressed: () async {
                 if (formstate.currentState!.validate()) {
+                  isloading = true;
+                  setState(() {});
                   try {
                     //credential hya user li dkhl email w password
                     final credential = await FirebaseAuth.instance
                         .signInWithEmailAndPassword(
                             email: email.text, password: password.text);
+                    isloading = false;
+                    setState(() {});
                     if (credential.user!.emailVerified) {
                       Navigator.pushAndRemoveUntil(
                           context,
@@ -167,6 +172,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           (route) => false);
                     } else {
+                      isloading = false;
+                      setState(() {});
                       AwesomeDialog(
                         context: context,
                         title: "errer",
@@ -185,6 +192,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         desc: "Not User found for that email",
                       ).show();
                     } else if (e.code == 'wrong-password') {
+                      isloading = false;
+                      setState(() {
+                        
+                      });
+
                       AwesomeDialog(
                               context: context,
                               title: "errer",
@@ -196,10 +208,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   }
                 }
               },
-              child: Text(
-                "Login",
-                style: TextStyle(fontSize: 20, color: Colors.white),
-              ),
+              child: isloading
+                  ? CircularProgressIndicator()
+                  : Text(
+                      "Login",
+                      style: TextStyle(fontSize: 20, color: Colors.white),
+                    ),
               height: 53,
               color: Colors.purple,
               shape: OutlineInputBorder(

@@ -1,5 +1,6 @@
-import 'package:appwithfirebase/screen/add_screen.dart';
+import 'package:appwithfirebase/screen/add.dart';
 import 'package:appwithfirebase/screen/sign/login_screen.dart';
+import 'package:appwithfirebase/screen/update.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -81,8 +82,7 @@ class _HomescreenState extends State<Homescreen> {
                             title: "warning",
                             dialogType: DialogType.warning,
                             animType: AnimType.rightSlide,
-                            btnCancelOnPress: () {},
-                            btnOkOnPress: () async {
+                            btnCancelOnPress: () async {
                               await FirebaseFirestore.instance
                                   .collection('notes')
                                   .doc(notes[index].id)
@@ -94,7 +94,18 @@ class _HomescreenState extends State<Homescreen> {
                                   ),
                                   (route) => false);
                             },
-                            desc: 'are you sure you want to delete this ?')
+                            btnCancelText: "delete",
+                            btnOkText: "update",
+                            btnOkOnPress: () async {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => UpdateScreen(
+                                        oldtext: notes[index]['note'],
+                                        docid: notes[index].id),
+                                  ));
+                            },
+                            desc: 'select what do you want ')
                         .show();
                   },
                   child: Padding(
